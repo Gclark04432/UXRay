@@ -2,41 +2,38 @@ import fs from 'fs';
 import path from 'path';
 import * as babelParser from '@babel/parser';
 import traverse from '@babel/traverse';
+import { runRules } from './rule-engine';
+import { missingLabelRule } from './rules/jsx/missing-label';
+import { Violation, AuditResult } from './rules/base';
 
-export function analyzeFile(filePath: string) {
-  const code = fs.readFileSync(path.resolve(filePath), 'utf-8');
+export function analyzeFile(filePath: string): AuditResult {
+  const sourceCode = fs.readFileSync(path.resolve(filePath), 'utf-8');
 
-  const ast = babelParser.parse(code, {
+  const ast = babelParser.parse(sourceCode, {
     sourceType: 'module',
     plugins: ['jsx', 'typescript'],
   });
 
-  let inputCount = 0;
-  let labeledInputCount = 0;
+  const violations: Violation[] = [];
+
+  const rules = [missingLabelRule];
 
   traverse(ast, {
     JSXElement(path) {
-      const openingElement = path.node.openingElement;
-      const tagName = openingElement.name;
-
-      if (tagName.type === 'JSXIdentifier' && tagName.name === 'input') {
-        inputCount++;
-
-        const hasId = openingElement.attributes.some(attr => {
-          return attr.type === 'JSXAttribute' && attr.name.name === 'id';
-        });
-
-        if (hasId) {
-          labeledInputCount++;
-        }
-      }
+      const ctx = { astPath: path, sourceCode };
+      const results = runRules(rules, ctx);
+      violations.push(...results);
     },
   });
 
-  const unlabeledInputs = inputCount - labeledInputCount;
+  const totalChecks = rules.length;
+  const passedChecks = totalChecks - violations.length;
+  const score = Math.max(0, Math.round((passedChecks / totalChecks) * 100));
 
   return {
-    totalInputs: inputCount,
-    unlabeledInputs,
+    totalChecks,
+    passedChecks,
+    violations,
+    score,
   };
 }

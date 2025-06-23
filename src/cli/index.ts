@@ -1,25 +1,38 @@
 #!/usr/bin/env node
 
-import { analyzeFile } from "../core/analyzer";
+import { analyzeFile } from '../core/analyzer';
+import chalk from 'chalk';
 
-console.log('Welcome to UXRay CLI!');
-
-const args  = process.argv.slice(2)
+const args = process.argv.slice(2);
 
 if (!args.length) {
-    console.log('Usage: uxray <path-to-component>')
-    process.exit(1)
+  console.log(chalk.gray('Usage: uxray <path-to-component>'));
+  process.exit(1);
 }
 
-const result = analyzeFile(args[0])
+const filePath = args[0];
+const result = analyzeFile(filePath);
 
-console.log(`\n🔍 UX Audit Report for ${args[0]}`);
-console.log(`Total input fields: ${result.totalInputs}`);
-console.log(`Unlabeled input fields: ${result.unlabeledInputs}\n`);
+console.log(`\n🔍 ${chalk.cyanBright('UXRay Audit Report')} for ${chalk.yellow(filePath)}`);
 
-if (result.unlabeledInputs > 0) {
-  console.log('⚠️ Some inputs may not be accessible. Consider adding <label> elements or aria-labels.');
+console.log(`\n📊 ${chalk.bold('Score')}: ${chalk.green(`${result.score}%`)}`);
+console.log(`✅ Passed Checks: ${result.passedChecks} / ${result.totalChecks}\n`);
+
+if (result.violations.length === 0) {
+  console.log(chalk.green('🎉 No violations found! Your component looks great.'));
 } else {
-  console.log('✅ All inputs appear to have labels!');
-}
+  console.log(chalk.red(`⚠️ Found ${result.violations.length} violation${result.violations.length > 1 ? 's' : ''}:\n`));
 
+  result.violations.forEach((v, index) => {
+    const symbol = v.severity === 'error' ? '❌' : v.severity === 'warn' ? '⚠️' : 'ℹ️';
+    const color = v.severity === 'error'
+      ? chalk.red
+      : v.severity === 'warn'
+      ? chalk.yellow
+      : chalk.gray;
+
+    console.log(`${chalk.gray(`${index + 1}.`)} ${symbol} ${color.bold(v.message)} ${chalk.gray(`[${v.type}]`)}`);
+  });
+
+  console.log('\n💡 Tip: Fixing higher severity issues (❌) will most improve accessibility.');
+}
