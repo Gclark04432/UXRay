@@ -1,16 +1,20 @@
 #!/usr/bin/env node
 
 import { analyzeFile } from '../core/analyzer';
+import { exportReport } from '../core/exporter';
 import chalk from 'chalk';
 
 const args = process.argv.slice(2);
 
-if (!args.length) {
-  console.log(chalk.gray('Usage: uxray <path-to-component>'));
+const filePath = args[0];
+if (!filePath) {
+  console.log(chalk.gray('Usage: uxray <file> [--report json|md] [--out <outputFile>]'));
   process.exit(1);
 }
 
-const filePath = args[0];
+const reportType = args.includes('--report') ? args[args.indexOf('--report') + 1] : null;
+const outputFile = args.includes('--out') ? args[args.indexOf('--out') + 1] : 'uxray-report.' + (reportType || 'json');
+
 const result = analyzeFile(filePath);
 
 console.log(`\n🔍 ${chalk.cyanBright('UXRay Audit Report')} for ${chalk.yellow(filePath)}`);
@@ -35,4 +39,8 @@ if (result.violations.length === 0) {
   });
 
   console.log('\n💡 Tip: Fixing higher severity issues (❌) will most improve accessibility.');
+}
+
+if (reportType === 'json' || reportType === 'md') {
+  exportReport(result, reportType as 'json' | 'md', outputFile);
 }
