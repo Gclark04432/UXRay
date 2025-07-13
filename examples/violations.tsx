@@ -7,6 +7,11 @@ export const Form = () => {
             <input id='email' type='email'/>
             <button></button>
             <a>Click me</a>
+            <select>
+                <option>Yes</option>
+                <option>No</option>
+            </select>
+            <textarea/>
         </>
     )
 }
