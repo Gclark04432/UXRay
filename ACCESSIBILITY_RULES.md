@@ -2,8 +2,6 @@
 
 This document outlines all the accessibility rules implemented in UXRay to help developers meet modern a11y standards.
 
-## Current Rules
-
 ### 1. **Anchor Elements** (`anchor-without-href`)
 - **Purpose**: Ensures all `<a>` tags have an `href` attribute
 - **Severity**: Warning
@@ -33,8 +31,6 @@ This document outlines all the accessibility rules implemented in UXRay to help 
 - **Severity**: Warning
 - **WCAG**: 2.4.1 (Level A) - Bypass Blocks
 - **Description**: Iframes need titles to help users understand their content
-
-## New Accessibility Rules
 
 ### 6. **Heading Structure** (`heading-structure`)
 - **Purpose**: Ensures proper heading hierarchy
