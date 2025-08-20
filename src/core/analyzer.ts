@@ -3,11 +3,7 @@ import path from 'path';
 import * as babelParser from '@babel/parser';
 import traverse from '@babel/traverse';
 import { runRules } from './rule-engine';
-import { missingLabelRule } from './rules/jsx/missing-label';
-import { missingAltTextRule } from './rules/jsx/missing-alt';
-import { buttonLabelRule } from './rules/jsx/button-label';
-import { anchorHrefRule } from './rules/jsx/anchor-without-href';
-import {iframeWithoutTitle} from './rules/jsx/iframe-without-title'
+import { missingLabelRule, missingAltTextRule, buttonLabelRule, anchorHrefRule, iframeWithoutTitle, headingStructureRule, landmarkElementsRule, formValidationRule, ariaValidationRule, tableAccessibilityRule, keyboardAccessibilityRule } from './rules/jsx';
 import { Violation, AuditResult } from './rules/base';
 
 export function analyzeFile(filePath: string): AuditResult {
@@ -25,7 +21,13 @@ const rules = [
   missingAltTextRule,
   buttonLabelRule,
   anchorHrefRule,
-  iframeWithoutTitle
+  iframeWithoutTitle,
+  headingStructureRule,
+  landmarkElementsRule,
+  formValidationRule,
+  ariaValidationRule,
+  tableAccessibilityRule,
+  keyboardAccessibilityRule
 ];
 
   traverse(ast, {
